@@ -17,7 +17,6 @@ Some ideas from Jumpdrive:
     )
 """
 
-from entity import Entity
 from dataclasses import dataclass
 from typing import List
 
@@ -25,6 +24,11 @@ from typing import List
 @dataclass
 class InputComponent:
     pass
+
+# Provides a name for the entity.
+@dataclass
+class NameComponent:
+    name: str
 
 # Entities with this component have FOV computed on them. Might consider
 # changing this to be an "FOVComponent" and a "NameComponent".
@@ -43,6 +47,12 @@ class RenderComponent:
 class PositionComponent:
     x: int = 0
     y: int = 0
+
+# Entities with this component will perform a directional action.
+@dataclass
+class DirectionalActionComponent:
+    dx: int = 0
+    dy: int = 0
 
 # Is steered by AI. Could have paths here, or type of pathing, etc.
 @dataclass
@@ -65,7 +75,7 @@ class CollectableComponent:
 class ObstructComponent:
     pass
 
-# Entities with this component have HP, and can be killed.
+# Entities with this component have HP, and can be harmed/killed.
 @dataclass
 class HarmableComponent:
     max_hp: int = 10

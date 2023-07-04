@@ -30,17 +30,22 @@ def main() -> None:
         world.add_processor(InputProcessor())
         world.add_processor(RenderProcessor(context=context, console=root_console))
         world.add_processor(HarmProcessor())
+        world.add_processor(DirectionalActionProcessor())
+
         player = world.create_entity(
+            NameComponent("player"),
             InputComponent(),
             RenderComponent(glyph="@"),
             PositionComponent(10,10),
             HarmableComponent(max_hp=10, hp=10),
+            ObstructComponent(),
         )
 
         enemy = world.create_entity(
-            InputComponent(),
+            NameComponent("goblin"),
             RenderComponent(glyph="g", fg_color=(139,69,19)),
             PositionComponent(25, 25),
+            ObstructComponent()
         )
 
         while True:
