@@ -29,7 +29,6 @@ def main() -> None:
         world = esper.World()
         world.add_processor(InputProcessor())
         world.add_processor(RenderProcessor(context=context, console=root_console))
-        world.add_processor(HarmProcessor())
         world.add_processor(DirectionalActionProcessor())
 
         player = world.create_entity(
@@ -45,7 +44,32 @@ def main() -> None:
             NameComponent("goblin"),
             RenderComponent(glyph="g", fg_color=(139,69,19)),
             PositionComponent(25, 25),
-            ObstructComponent()
+            ObstructComponent(),
+        )
+
+        wall = world.create_entity(
+            NameComponent("wall"),
+            PositionComponent(26, 28),
+            RenderComponent(glyph="║", fg_color=(50, 100, 0)),
+            ObstructComponent(),
+        )
+        wall = world.create_entity(
+            NameComponent("wall"),
+            PositionComponent(26, 29),
+            RenderComponent(glyph="║", fg_color=(50, 100, 0)),
+            ObstructComponent(),
+        )
+        wall = world.create_entity(
+            NameComponent("wall"),
+            PositionComponent(26, 27),
+            RenderComponent(glyph="╔", fg_color=(50, 100, 0)),
+            ObstructComponent(),
+        )
+        wall = world.create_entity(
+            NameComponent("wall"),
+            PositionComponent(27, 27),
+            RenderComponent(glyph="═", fg_color=(50, 100, 0)),
+            ObstructComponent(),
         )
 
         while True:

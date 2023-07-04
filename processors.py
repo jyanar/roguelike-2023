@@ -7,14 +7,6 @@ from keymap import *
 from components import *
 
 
-""" Let's query all units with HP, and decrease their HP.
-"""
-class HarmProcessor(esper.Processor):
-    def process(self) -> None:
-        for ent, (hc,) in self.world.get_components(HarmableComponent):
-            hc.hp -= 1
-
-
 class InputProcessor(esper.Processor):
     def process(self) -> None:
         for event in tcod.event.wait():

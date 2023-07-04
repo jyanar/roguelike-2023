@@ -18,7 +18,6 @@ Some ideas from Jumpdrive:
 """
 
 from dataclasses import dataclass
-from typing import List
 
 # Entities with this component are processed by the input system.
 @dataclass
