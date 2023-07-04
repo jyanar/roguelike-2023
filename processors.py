@@ -7,26 +7,20 @@ from keymap import *
 from components import *
 
 
+# Docs: https://python-tcod.readthedocs.io/en/latest/tcod/event.html
 class InputProcessor(esper.Processor):
     def process(self) -> None:
         for event in tcod.event.wait():
-            match event:
-                # Exit
-                case tcod.event.Quit():
+            if isinstance(event, tcod.event.KeyDown):
+                key = event.sym
+                if key == tcod.event.KeySym.ESCAPE:
                     raise SystemExit()
-                # Movement!
-                case tcod.event.KeyDown(sym=tcod.event.KeySym.LEFT):
+                elif key in WAIT_KEYS:
+                    continue
+                elif key in MOVE_KEYS:
+                    dx, dy = MOVE_KEYS[key]
                     for ent, (ic,pc) in self.world.get_components(InputComponent, PositionComponent):
-                        self.world.add_component(ent, DirectionalActionComponent(-1, 0))
-                case tcod.event.KeyDown(sym=tcod.event.KeySym.RIGHT):
-                    for ent, (ic,pc) in self.world.get_components(InputComponent, PositionComponent):
-                        self.world.add_component(ent, DirectionalActionComponent(1, 0))
-                case tcod.event.KeyDown(sym=tcod.event.KeySym.DOWN):
-                    for ent, (ic,pc) in self.world.get_components(InputComponent, PositionComponent):
-                        self.world.add_component(ent, DirectionalActionComponent(0, 1))
-                case tcod.event.KeyDown(sym=tcod.event.KeySym.UP):
-                    for ent, (ic,pc) in self.world.get_components(InputComponent, PositionComponent):
-                        self.world.add_component(ent, DirectionalActionComponent(0, -1))
+                        self.world.add_component(ent, DirectionalActionComponent(dx, dy))
 
 
 class DirectionalActionProcessor(esper.Processor):
@@ -42,8 +36,12 @@ class DirectionalActionProcessor(esper.Processor):
             xn, yn = pc.x + dx, pc.y + dy
             target = self._get_entity_at(xn, yn)
             if target and self.world.has_component(target, ObstructComponent):
-                name = self.world.component_for_entity(target, NameComponent)
-                print(f"path blocked by {name.name}")
+                name = self.world.component_for_entity(target, NameComponent).name
+                match name:
+                    case "wall":
+                        print("The wall is firm and unyielding!")
+                    case other:
+                        print(f"You attack the {name}!")
             else:
                 pc.x = xn
                 pc.y = yn

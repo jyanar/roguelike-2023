@@ -4,12 +4,14 @@
 import os
 
 import esper
-from components import *
-from processors import *
-
 import tcod.console
 import tcod.context
 import tcod.event
+
+from components import *
+from processors import *
+from worldgen import setup_world
+# from engine import Engine
 
 from constants import *
 
@@ -25,55 +27,11 @@ def main() -> None:
             vsync=True,
     ) as context:
         root_console = tcod.console.Console(SCREEN_WIDTH, SCREEN_HEIGHT, order="F")
-
-        world = esper.World()
-        world.add_processor(InputProcessor())
-        world.add_processor(RenderProcessor(context=context, console=root_console))
-        world.add_processor(DirectionalActionProcessor())
-
-        player = world.create_entity(
-            NameComponent("player"),
-            InputComponent(),
-            RenderComponent(glyph="@"),
-            PositionComponent(10,10),
-            HarmableComponent(max_hp=10, hp=10),
-            ObstructComponent(),
-        )
-
-        enemy = world.create_entity(
-            NameComponent("goblin"),
-            RenderComponent(glyph="g", fg_color=(139,69,19)),
-            PositionComponent(25, 25),
-            ObstructComponent(),
-        )
-
-        wall = world.create_entity(
-            NameComponent("wall"),
-            PositionComponent(26, 28),
-            RenderComponent(glyph="║", fg_color=(50, 100, 0)),
-            ObstructComponent(),
-        )
-        wall = world.create_entity(
-            NameComponent("wall"),
-            PositionComponent(26, 29),
-            RenderComponent(glyph="║", fg_color=(50, 100, 0)),
-            ObstructComponent(),
-        )
-        wall = world.create_entity(
-            NameComponent("wall"),
-            PositionComponent(26, 27),
-            RenderComponent(glyph="╔", fg_color=(50, 100, 0)),
-            ObstructComponent(),
-        )
-        wall = world.create_entity(
-            NameComponent("wall"),
-            PositionComponent(27, 27),
-            RenderComponent(glyph="═", fg_color=(50, 100, 0)),
-            ObstructComponent(),
-        )
-
+        world = setup_world(context, root_console, MAP_WIDTH, MAP_HEIGHT)
+        # engine = Engine(context, root_console, SCREEN_WIDTH, SCREEN_HEIGHT, MAP_WIDTH, MAP_HEIGHT)
         while True:
             world.process()
+            # engine.update()
 
 
 if __name__ == "__main__":
