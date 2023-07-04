@@ -8,3 +8,4 @@ SCREEN_HEIGHT: int = 30
 MAP_WIDTH: int = 80
 MAP_HEIGHT: int = 30
 TILESET: Tileset = load_tilesheet("assets/Taffer_20x20.png", 16, 16, CHARMAP_CP437)
+# TILESET: Tileset = load_tilesheet("assets/Md_curses_16x16.png", 16, 16, CHARMAP_CP437)

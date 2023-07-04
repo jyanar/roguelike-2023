@@ -12,8 +12,8 @@ from components import *
 def setup_world(
         context: tcod.context.Context,
         console: tcod.console.Console,
-        MAP_WIDTH: int,
-        MAP_HEIGHT: int,
+        map_width: int,
+        map_height: int,
     ) -> esper.World:
 
     world = esper.World()

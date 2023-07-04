@@ -5,6 +5,7 @@ import tcod
 import esper
 from keymap import *
 from components import *
+from constants import *
 
 
 # Docs: https://python-tcod.readthedocs.io/en/latest/tcod/event.html
@@ -34,6 +35,8 @@ class DirectionalActionProcessor(esper.Processor):
         for ent, (pc,dac) in self.world.get_components(PositionComponent, DirectionalActionComponent):
             dx, dy = dac.dx, dac.dy
             xn, yn = pc.x + dx, pc.y + dy
+            if (xn == MAP_WIDTH or xn < 0) or (yn == MAP_HEIGHT or yn < 0):
+                continue
             target = self._get_entity_at(xn, yn)
             if target and self.world.has_component(target, ObstructComponent):
                 name = self.world.component_for_entity(target, NameComponent).name
