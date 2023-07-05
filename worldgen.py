@@ -8,6 +8,8 @@ import tcod
 from processors import *
 from components import *
 
+from gamemap import GameMap
+
 
 def setup_world(
         context: tcod.context.Context,
@@ -16,10 +18,12 @@ def setup_world(
         map_height: int,
     ) -> esper.World:
 
+    gamemap = GameMap(map_width, map_height)
+
     world = esper.World()
     world.add_processor(InputProcessor())
-    world.add_processor(RenderProcessor(context=context, console=console))
-    world.add_processor(DirectionalActionProcessor())
+    world.add_processor(RenderProcessor(context=context, console=console, gamemap=gamemap))
+    world.add_processor(DirectionalActionProcessor(gamemap=gamemap))
 
     player = world.create_entity(
         NameComponent("player"),
@@ -34,31 +38,6 @@ def setup_world(
         NameComponent("goblin"),
         RenderComponent(glyph="g", fg_color=(139,69,19)),
         PositionComponent(25, 25),
-        ObstructComponent(),
-    )
-
-    wall = world.create_entity(
-        NameComponent("wall"),
-        PositionComponent(26, 28),
-        RenderComponent(glyph="║", fg_color=(50, 100, 0)),
-        ObstructComponent(),
-    )
-    wall = world.create_entity(
-        NameComponent("wall"),
-        PositionComponent(26, 29),
-        RenderComponent(glyph="║", fg_color=(50, 100, 0)),
-        ObstructComponent(),
-    )
-    wall = world.create_entity(
-        NameComponent("wall"),
-        PositionComponent(26, 27),
-        RenderComponent(glyph="╔", fg_color=(50, 100, 0)),
-        ObstructComponent(),
-    )
-    wall = world.create_entity(
-        NameComponent("wall"),
-        PositionComponent(27, 27),
-        RenderComponent(glyph="═", fg_color=(50, 100, 0)),
         ObstructComponent(),
     )
 

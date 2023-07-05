@@ -3,9 +3,11 @@
 
 import tcod
 import esper
-from keymap import *
+
 from components import *
 from constants import *
+from gamemap import GameMap
+from keymap import WAIT_KEYS, MOVE_KEYS
 
 
 # Docs: https://python-tcod.readthedocs.io/en/latest/tcod/event.html
@@ -25,6 +27,9 @@ class InputProcessor(esper.Processor):
 
 
 class DirectionalActionProcessor(esper.Processor):
+    def __init__(self, gamemap: GameMap):
+        self.gamemap = gamemap
+
     def _get_entity_at(self, x: int, y: int) -> int | None:
         for (ent, pc) in self.world.get_component(PositionComponent):
             if pc.x == x and pc.y == y:
@@ -35,16 +40,15 @@ class DirectionalActionProcessor(esper.Processor):
         for ent, (pc,dac) in self.world.get_components(PositionComponent, DirectionalActionComponent):
             dx, dy = dac.dx, dac.dy
             xn, yn = pc.x + dx, pc.y + dy
-            if (xn == MAP_WIDTH or xn < 0) or (yn == MAP_HEIGHT or yn < 0):
+            if not self.gamemap.in_bounds(xn, yn):
+                continue
+            if not self.gamemap.is_walkable(xn, yn):
+                print("The wall is firm and unyielding!")
                 continue
             target = self._get_entity_at(xn, yn)
             if target and self.world.has_component(target, ObstructComponent):
                 name = self.world.component_for_entity(target, NameComponent).name
-                match name:
-                    case "wall":
-                        print("The wall is firm and unyielding!")
-                    case other:
-                        print(f"You attack the {name}!")
+                print(f"You attack the {name}!")
             else:
                 pc.x = xn
                 pc.y = yn
@@ -52,16 +56,19 @@ class DirectionalActionProcessor(esper.Processor):
 
 
 class RenderProcessor(esper.Processor):
-    def __init__(self, context: tcod.context.Context, console: tcod.console.Console):
+    def __init__(self, context: tcod.context.Context, console: tcod.console.Console, gamemap: GameMap):
         super().__init__()
         self.context = context
         self.console = console
+        self.gamemap = gamemap
 
     def process(self) -> None:
         self.console.clear()
+        self.gamemap.render(self.console)
         for ent, (rc,pc) in self.world.get_components(RenderComponent, PositionComponent):
             if rc.bg_color:
                 self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color, bg=rc.bg_color)
             else:
                 self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color)
         self.context.present(self.console, keep_aspect=True, integer_scaling=True)
+

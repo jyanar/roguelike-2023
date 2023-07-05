@@ -23,10 +23,34 @@ class Engine:
         self.map_width = map_width
         self.map_height = map_height
         self.world = esper.World()
-    
-    def add_processors(self, processors: list[esper.Processor]) -> None:
-        for p in processors:
-            self.world.add_processor(p)
+
+
+    # Let's assume that the user then just adds all the systems
+    # via the world object.
+    #
+    # The question is, can we construct processors that can make reference to
+    # the gamemap?
+
+    # blugh duh you just need to make the different Processor classes init with
+    # a reference to the gamemap.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # def add_processors(self, processors: list[esper.Processor]) -> None:
+    #     for p in processors:
+    #         self.world.add_processor(p)
 
 
 
