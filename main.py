@@ -3,10 +3,7 @@
 
 import os
 
-import esper
-import tcod.console
-import tcod.context
-import tcod.event
+import tcod
 
 from components import *
 from processors import *

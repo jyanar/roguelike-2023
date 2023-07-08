@@ -64,7 +64,7 @@ def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int)
         if not any(entity[0] == x and entity[1] == y for entity in locs):
             locs.append((x, y))
             if random.random() < 0.8:
-                enemy = world.create_entity(
+                world.create_entity(
                     NameComponent("goblin"),
                     RenderComponent(glyph="g", fg_color=(139,69,19)),
                     PositionComponent(x, y),
@@ -73,7 +73,7 @@ def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int)
                     CreatureStateComponent(state=CreatureState.SLEEPING)
                 )
             else:
-                enemy = world.create_entity(
+                world.create_entity(
                     NameComponent("orc"),
                     RenderComponent(glyph="o", fg_color=(139,69,19)),
                     PositionComponent(x, y),
