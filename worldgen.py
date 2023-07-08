@@ -70,6 +70,7 @@ def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int)
                     PositionComponent(x, y),
                     HarmableComponent(max_hp=10, hp=10),
                     ObstructComponent(),
+                    CreatureStateComponent(state=CreatureState.SLEEPING)
                 )
             else:
                 enemy = world.create_entity(
@@ -78,6 +79,7 @@ def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int)
                     PositionComponent(x, y),
                     HarmableComponent(max_hp=15, hp=15),
                     ObstructComponent(),
+                    CreatureStateComponent(state=CreatureState.SLEEPING)
                 )
 
 
@@ -151,7 +153,9 @@ def setup_world(
     )
 
     world.add_processor(InputProcessor())
-    world.add_processor(RenderProcessor(context=context, console=console, gamemap=gamemap))
     world.add_processor(DirectionalActionProcessor(gamemap=gamemap))
+    # world.add_processor(StateProcessor())
+    world.add_processor(RenderProcessor(context=context, console=console, gamemap=gamemap))
+    # world.add_processor(DebugProcessor())
 
     return world

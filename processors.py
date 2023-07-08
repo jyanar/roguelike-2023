@@ -57,7 +57,6 @@ class DirectionalActionProcessor(esper.Processor):
 
 class RenderProcessor(esper.Processor):
     def __init__(self, context: tcod.context.Context, console: tcod.console.Console, gamemap: GameMap):
-        super().__init__()
         self.context = context
         self.console = console
         self.gamemap = gamemap
@@ -71,4 +70,28 @@ class RenderProcessor(esper.Processor):
             else:
                 self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color)
         self.context.present(self.console, keep_aspect=True, integer_scaling=True)
+
+
+class StateProcessor(esper.Processor):
+    def process(self) -> None:
+        for ent, (nc, csc) in self.world.get_components(NameComponent, CreatureStateComponent):
+            name = nc.name
+            current_state = csc.state
+            print(f"{name} is currently: {current_state}")
+
+
+# Prints out components and their data for each entity
+class DebugProcessor(esper.Processor):
+    def process(self) -> None:
+        print('\n=========================================')
+        print('=========== Next tick ===================')
+        print('=========================================\n')
+        for ent in self.world._entities:
+            comps = self.world.components_for_entity(ent)
+            print("-------------")
+            print(f"Entity {ent}:")
+            for c in comps:
+                print(c)
+            
+
 

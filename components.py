@@ -1,22 +1,7 @@
 """ A list of components that an entity can have.
-
-Some ideas from Jumpdrive:
-    sys := ecs.NewSystem(
-        InputComponent,
-        WorldComponent,
-        WeatherComponent,
-        ShootComponent,
-        HarmableComponent,
-        PlayerComponent,
-        WanderComponent,
-        PositionComponent,
-        InventoryComponent,
-        CollectableComponent,
-        PerceptiveComponent,
-        BlockingComponent,
-    )
 """
 
+from enum import Enum
 from dataclasses import dataclass
 
 # Entities with this component are processed by the input system.
@@ -91,4 +76,16 @@ class WearableComponent:
 @dataclass
 class PerceptiveComponent:
     dist: int = 10
+
+
+# The states a given entity can be in. For now let's go with:
+# wandering, sleeping, or hunting.
+class CreatureState(Enum):
+    WANDERING = 1
+    SLEEPING = 2
+    HUNTING = 3
+
+@dataclass
+class CreatureStateComponent:
+    state: CreatureState
 
