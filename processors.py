@@ -38,6 +38,7 @@ class DirectionalActionProcessor(esper.Processor):
 
     def process(self) -> None:
         for ent, (pc,dac) in self.world.get_components(PositionComponent, DirectionalActionComponent):
+            self.world.remove_component(ent, DirectionalActionComponent) # consume
             dx, dy = dac.dx, dac.dy
             xn, yn = pc.x + dx, pc.y + dy
             if not self.gamemap.in_bounds(xn, yn):
@@ -52,7 +53,6 @@ class DirectionalActionProcessor(esper.Processor):
             else:
                 pc.x = xn
                 pc.y = yn
-            self.world.remove_component(ent, DirectionalActionComponent)
 
 
 class RenderProcessor(esper.Processor):
