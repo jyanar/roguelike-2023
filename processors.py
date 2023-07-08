@@ -55,6 +55,23 @@ class DirectionalActionProcessor(esper.Processor):
                 pc.y = yn
 
 
+# TODO Issue with having multiple entities w/ FOV. Fine if just one.
+class FOVProcessor(esper.Processor):
+    def __init__(self, gamemap: GameMap):
+        self.gamemap = gamemap
+
+    def process(self) -> None:
+        for ent, (fc,pc) in self.world.get_components(FOVComponent, PositionComponent):
+            self.gamemap.visible[:] = tcod.map.compute_fov(
+                self.gamemap.tiles["transparent"],
+                (pc.x, pc.y),
+                radius=fc.radius,
+            )
+            # If a tile is "visible" it should be added to "explored"
+            self.gamemap.explored |= self.gamemap.visible
+
+
+
 class RenderProcessor(esper.Processor):
     def __init__(self, context: tcod.context.Context, console: tcod.console.Console, gamemap: GameMap):
         self.context = context
@@ -65,10 +82,11 @@ class RenderProcessor(esper.Processor):
         self.console.clear()
         self.gamemap.render(self.console)
         for ent, (rc,pc) in self.world.get_components(RenderComponent, PositionComponent):
-            if rc.bg_color:
-                self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color, bg=rc.bg_color)
-            else:
-                self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color)
+            if self.gamemap.visible[pc.x, pc.y]:
+                if rc.bg_color:
+                    self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color, bg=rc.bg_color)
+                else:
+                    self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color)
         self.context.present(self.console, keep_aspect=True, integer_scaling=True)
 
 

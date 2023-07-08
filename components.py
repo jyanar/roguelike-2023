@@ -20,6 +20,13 @@ class NameComponent:
 class PlayerComponent:
     name: str = "adventurer"
 
+
+# Entities with this component have FOV computed on them.
+@dataclass
+class FOVComponent:
+    radius: int = 8
+
+
 # Is renderable. Most entities do not have a bg_color. Walls do.
 @dataclass
 class RenderComponent:

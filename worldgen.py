@@ -117,6 +117,7 @@ def generate_dungeon(
             world.create_entity(
                 NameComponent("player"),
                 InputComponent(),
+                FOVComponent(),
                 RenderComponent(glyph="@"),
                 PositionComponent(*rooms[iroom].center),
                 HarmableComponent(max_hp=10, hp=10),
@@ -155,6 +156,7 @@ def setup_world(
     world.add_processor(InputProcessor())
     world.add_processor(DirectionalActionProcessor(gamemap=gamemap))
     # world.add_processor(StateProcessor())
+    world.add_processor(FOVProcessor(gamemap=gamemap))
     world.add_processor(RenderProcessor(context=context, console=console, gamemap=gamemap))
     # world.add_processor(DebugProcessor())
 
