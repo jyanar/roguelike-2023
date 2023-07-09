@@ -2,7 +2,7 @@
 """
 
 from enum import Enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 # Entities with this component are processed by the input system.
 @dataclass
@@ -20,14 +20,18 @@ class NameComponent:
 class PlayerComponent:
     name: str = "adventurer"
 
-
 # Entities with this component have FOV computed on them.
 @dataclass
 class FOVComponent:
     radius: int = 8
 
+# Can perceive other entities around it.
+@dataclass
+class PerceptiveComponent:
+    radius: int = 8
+    perceived_entities: list[int] = field(default_factory=list)
 
-# Is renderable. Most entities do not have a bg_color. Walls do.
+# Is renderable. Most entities do not have a bg_color.
 @dataclass
 class RenderComponent:
     glyph: str = "?"
@@ -54,7 +58,7 @@ class AIComponent:
 # CollectibleComponent.
 @dataclass
 class InventoryComponent:
-    contents: list
+    contents: list[int] = field(default_factory=list)
 
 # Entities with this component can be placed in inventory.
 @dataclass
@@ -79,12 +83,6 @@ class HarmableComponent:
 class WearableComponent:
     defense: int = 3
 
-# Can perceive other entities around it.
-@dataclass
-class PerceptiveComponent:
-    dist: int = 10
-
-
 # The states a given entity can be in. For now let's go with:
 # wandering, sleeping, or hunting.
 class CreatureState(Enum):
@@ -96,3 +94,7 @@ class CreatureState(Enum):
 class CreatureStateComponent:
     state: CreatureState
 
+# Entities with this component will pursue and attack the "player" entity.
+@dataclass
+class HostileComponent:
+    pass

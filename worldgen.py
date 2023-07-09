@@ -69,6 +69,7 @@ def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int)
                     RenderComponent(glyph="g", fg_color=(139,69,19)),
                     PositionComponent(x, y),
                     HarmableComponent(max_hp=10, hp=10),
+                    PerceptiveComponent(),
                     ObstructComponent(),
                     CreatureStateComponent(state=CreatureState.SLEEPING)
                 )
@@ -78,6 +79,7 @@ def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int)
                     RenderComponent(glyph="o", fg_color=(139,69,19)),
                     PositionComponent(x, y),
                     HarmableComponent(max_hp=15, hp=15),
+                    PerceptiveComponent(),
                     ObstructComponent(),
                     CreatureStateComponent(state=CreatureState.SLEEPING)
                 )
@@ -157,7 +159,8 @@ def setup_world(
     world.add_processor(DirectionalActionProcessor(gamemap=gamemap))
     # world.add_processor(StateProcessor())
     world.add_processor(FOVProcessor(gamemap=gamemap))
+    world.add_processor(PerceptionProcessor(gamemap=gamemap))
     world.add_processor(RenderProcessor(context=context, console=console, gamemap=gamemap))
-    # world.add_processor(DebugProcessor())
+    world.add_processor(DebugProcessor())
 
     return world

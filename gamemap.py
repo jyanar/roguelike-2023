@@ -14,6 +14,9 @@ class GameMap:
         self.visible = np.full((width, height), fill_value=False, order="F")
         self.explored = np.full((width, height), fill_value=False, order="F")
 
+    def chebyshev(self, pt1: tuple[int,int], pt2: tuple[int,int]) -> int:
+        return np.max([np.abs(pt1[0] - pt2[0]), np.abs(pt1[1] - pt2[1])])
+    
     def in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.width and 0 <= y < self.height
 	

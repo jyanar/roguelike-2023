@@ -70,7 +70,27 @@ class FOVProcessor(esper.Processor):
             # If a tile is "visible" it should be added to "explored"
             self.gamemap.explored |= self.gamemap.visible
 
+# Checks entities that are within radius specified by PerceptionComponent, and
+# add them to a list of perceived entitites.
+class PerceptionProcessor(esper.Processor):
+    def __init__(self, gamemap: GameMap):
+        self.gamemap = gamemap
 
+    def _get_entity_at(self, x: int, y: int) -> int | None:
+        for (ent, pc) in self.world.get_component(PositionComponent):
+            if pc.x == x and pc.y == y:
+                return ent
+        return None
+    
+    def process(self) -> None:
+        for ent, (pos,per) in self.world.get_components(PositionComponent, PerceptiveComponent):
+            per.perceived_entities = []
+            x, y = pos.x, pos.y # current entity position
+            # Now let's add all entities that are within radius distance
+            # NOTE: This does not scale!
+            for otherentity, (pos,) in self.world.get_components(PositionComponent):
+                if ent != otherentity and self.gamemap.chebyshev((x, y), (pos.x, pos.y)) <= per.radius:
+                    per.perceived_entities.append(otherentity)
 
 class RenderProcessor(esper.Processor):
     def __init__(self, context: tcod.context.Context, console: tcod.console.Console, gamemap: GameMap):
