@@ -10,20 +10,18 @@ from gamemap import GameMap
 from keymap import WAIT_KEYS, MOVE_KEYS
 
 
-# Docs: https://python-tcod.readthedocs.io/en/latest/tcod/event.html
 class InputProcessor(esper.Processor):
     def process(self) -> None:
-        for event in tcod.event.wait():
-            if isinstance(event, tcod.event.KeyDown):
-                key = event.sym
-                if key == tcod.event.KeySym.ESCAPE:
-                    raise SystemExit()
-                elif key in WAIT_KEYS:
-                    continue
-                elif key in MOVE_KEYS:
-                    dx, dy = MOVE_KEYS[key]
-                    for ent, (ic,pc) in self.world.get_components(InputComponent, PositionComponent):
-                        self.world.add_component(ent, DirectionalActionComponent(dx, dy))
+        for ent, (kp,) in self.world.get_components(KeyPressComponent):
+            key = kp.key
+            if key == tcod.event.KeySym.ESCAPE:
+                raise SystemExit()
+            elif key in WAIT_KEYS:
+                return
+            elif key in MOVE_KEYS:
+                dx, dy = MOVE_KEYS[key]
+                for ent, (ic,pc) in self.world.get_components(InputComponent, PositionComponent):
+                    self.world.add_component(ent, DirectionalActionComponent(dx, dy))
 
 
 class DirectionalActionProcessor(esper.Processor):
@@ -39,17 +37,19 @@ class DirectionalActionProcessor(esper.Processor):
     def process(self) -> None:
         for ent, (pc,dac) in self.world.get_components(PositionComponent, DirectionalActionComponent):
             self.world.remove_component(ent, DirectionalActionComponent) # consume
-            dx, dy = dac.dx, dac.dy
-            xn, yn = pc.x + dx, pc.y + dy
+            xn, yn = pc.x + dac.dx, pc.y + dac.dy
             if not self.gamemap.in_bounds(xn, yn):
                 continue
             if not self.gamemap.is_walkable(xn, yn):
                 print("The wall is firm and unyielding!")
                 continue
+            entname = self.world.component_for_entity(ent, NameComponent)
             target = self._get_entity_at(xn, yn)
             if target and self.world.has_component(target, ObstructComponent):
-                name = self.world.component_for_entity(target, NameComponent).name
-                print(f"You attack the {name}!")
+                targetname = self.world.component_for_entity(target, NameComponent).name
+                targethealth = self.world.component_for_entity(target, HealthComponent)
+                targethealth.hp -= 5
+                print(f"{entname} attacks the {targetname}! It has {targethealth.hp} health left.")
             else:
                 pc.x = xn
                 pc.y = yn
@@ -70,6 +70,7 @@ class FOVProcessor(esper.Processor):
             # If a tile is "visible" it should be added to "explored"
             self.gamemap.explored |= self.gamemap.visible
 
+
 # Checks entities that are within radius specified by PerceptionComponent, and
 # add them to a list of perceived entitites.
 class PerceptionProcessor(esper.Processor):
@@ -86,11 +87,42 @@ class PerceptionProcessor(esper.Processor):
         for ent, (pos,per) in self.world.get_components(PositionComponent, PerceptiveComponent):
             per.perceived_entities = []
             x, y = pos.x, pos.y # current entity position
-            # Now let's add all entities that are within radius distance
+            # Now let's add all entities that are within perceptible radius
             # NOTE: This does not scale!
             for otherentity, (pos,) in self.world.get_components(PositionComponent):
                 if ent != otherentity and self.gamemap.chebyshev((x, y), (pos.x, pos.y)) <= per.radius:
                     per.perceived_entities.append(otherentity)
+
+
+# Entities with Hostile component are processed here and will begin pathing towards 
+# the player, assuming the player is perceived. Longer-term it might be better to be able
+# to specify which types of entities a given creature is hostile to, not just the player.
+class HostileProcessor(esper.Processor):
+    def __init__(self, gamemap: GameMap):
+        self.gamemap = gamemap
+
+    def process(self) -> None:
+        for ent, (hostile,percept,pos) in self.world.get_components(HostileComponent, PerceptiveComponent, PositionComponent):
+            if len(percept.perceived_entities) > 0:
+                # Check through perceived entities. If any are the player, move towards them
+                for percieved_ent in percept.perceived_entities:
+                    name = self.world.component_for_entity(percieved_ent, NameComponent).name
+                    if name == "player":
+                        # Compute path to player
+                        playerpos = self.world.component_for_entity(percieved_ent, PositionComponent)
+                        path = self.gamemap.get_path((pos.x, pos.y), (playerpos.x, playerpos.y))
+                        if path:
+                            dest_x, dest_y = path.pop(0)
+                            self.world.add_component(ent, DirectionalActionComponent(dest_x - pos.x, dest_y - pos.y))
+
+
+class StateProcessor(esper.Processor):
+    def process(self) -> None:
+        for ent, (nc, csc) in self.world.get_components(NameComponent, CreatureStateComponent):
+            name = nc.name
+            current_state = csc.state
+            print(f"{name} is currently: {current_state}")
+
 
 class RenderProcessor(esper.Processor):
     def __init__(self, context: tcod.context.Context, console: tcod.console.Console, gamemap: GameMap):
@@ -108,14 +140,6 @@ class RenderProcessor(esper.Processor):
                 else:
                     self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color)
         self.context.present(self.console, keep_aspect=True, integer_scaling=True)
-
-
-class StateProcessor(esper.Processor):
-    def process(self) -> None:
-        for ent, (nc, csc) in self.world.get_components(NameComponent, CreatureStateComponent):
-            name = nc.name
-            current_state = csc.state
-            print(f"{name} is currently: {current_state}")
 
 
 # Prints out components and their data for each entity

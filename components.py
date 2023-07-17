@@ -1,8 +1,15 @@
 """ A list of components that an entity can have.
 """
 
+import tcod
 from enum import Enum
 from dataclasses import dataclass, field
+
+
+# This component simply represents a keypress.
+@dataclass
+class KeyPressComponent:
+    key: tcod.event.KeySym
 
 # Entities with this component are processed by the input system.
 @dataclass
@@ -14,12 +21,6 @@ class InputComponent:
 class NameComponent:
     name: str
 
-# Entities with this component have FOV computed on them. Might consider
-# changing this to be an "FOVComponent" and a "NameComponent".
-@dataclass
-class PlayerComponent:
-    name: str = "adventurer"
-
 # Entities with this component have FOV computed on them.
 @dataclass
 class FOVComponent:
@@ -28,7 +29,7 @@ class FOVComponent:
 # Can perceive other entities around it.
 @dataclass
 class PerceptiveComponent:
-    radius: int = 8
+    radius: int = 4
     perceived_entities: list[int] = field(default_factory=list)
 
 # Is renderable. Most entities do not have a bg_color.
@@ -72,7 +73,7 @@ class ObstructComponent:
 
 # Entities with this component have HP, and can be harmed/killed.
 @dataclass
-class HarmableComponent:
+class HealthComponent:
     max_hp: int = 10
     hp: int = 10
 

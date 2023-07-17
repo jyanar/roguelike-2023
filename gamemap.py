@@ -2,12 +2,16 @@
 """
 
 import tcod
+import esper
 import numpy as np
 
 import tile_types
 
 
 class GameMap:
+
+    world: esper.World
+
     def __init__(self, width: int, height: int) -> None:
         self.width, self.height = width, height
         self.tiles = np.full((width, height), fill_value=tile_types.wall, order="F")
@@ -22,6 +26,19 @@ class GameMap:
 	
     def is_walkable(self, x: int, y: int) -> bool:
         return self.tiles['walkable'][x][y]
+    
+    def get_path(self, start: tuple[int,int], target: tuple[int,int]) -> list[tuple[int,int]]:
+        """
+        Compute and return a path from start to target.
+        If there is no valid path then returns an empty list.
+        """
+        cost = np.array(self.tiles["walkable"], dtype=np.int8)
+        graph = tcod.path.SimpleGraph(cost=cost, cardinal=2, diagonal=3)
+        pathfinder = tcod.path.Pathfinder(graph)
+        pathfinder.add_root(start)
+        # Compute the path to the destination and remove the starting point.
+        path: list[list[int]] = pathfinder.path_to(target)[1:].tolist()
+        return [(index[0], index[1]) for index in path]
     
     def render(self, console: tcod.console.Console) -> None:
         """
