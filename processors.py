@@ -43,7 +43,7 @@ class DirectionalActionProcessor(esper.Processor):
             if not self.gamemap.is_walkable(xn, yn):
                 print("The wall is firm and unyielding!")
                 continue
-            entname = self.world.component_for_entity(ent, NameComponent)
+            entname = self.world.component_for_entity(ent, NameComponent).name
             target = self._get_entity_at(xn, yn)
             if target and self.world.has_component(target, ObstructComponent):
                 targetname = self.world.component_for_entity(target, NameComponent).name

@@ -58,7 +58,7 @@ def tunnel_between(start: tuple[int,int], end: tuple[int,int]) -> Iterator[tuple
 def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int) -> None:
     n_monsters = random.randint(0, max_monsters)
     locs: list[tuple[int,int]] = []
-    for i in range(n_monsters):
+    for _ in range(n_monsters):
         x = random.randint(room.x1 + 1, room.x2 - 1)
         y = random.randint(room.y1 + 1, room.y2 - 1)
         if not any(entity[0] == x and entity[1] == y for entity in locs):
