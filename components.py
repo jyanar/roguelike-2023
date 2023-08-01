@@ -66,16 +66,21 @@ class InventoryComponent:
 class CollectableComponent:
     pass
 
-# Entities with this component cannot be walked through. e.g. walls.
-@dataclass
-class ObstructComponent:
-    pass
-
 # Entities with this component have HP, and can be harmed/killed.
 @dataclass
 class HealthComponent:
     max_hp: int = 10
     hp: int = 10
+
+# Entities with this component can damage entities with a health component.
+@dataclass
+class DamageComponent:
+    atk: int = 3
+
+# Entities with this component have been marked for death.
+@dataclass
+class DieComponent:
+    pass
 
 # Can be worn. Provides some defense. Note that entities with this should
 # also have a CollectibleComponent, to allow them to be placed in inventory.

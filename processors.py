@@ -38,21 +38,43 @@ class DirectionalActionProcessor(esper.Processor):
         for ent, (pc,dac) in self.world.get_components(PositionComponent, DirectionalActionComponent):
             self.world.remove_component(ent, DirectionalActionComponent) # consume
             xn, yn = pc.x + dac.dx, pc.y + dac.dy
+
             if not self.gamemap.in_bounds(xn, yn):
                 continue
+
+            e_name = self.world.component_for_entity(ent, NameComponent).name
             if not self.gamemap.is_walkable(xn, yn):
-                print("The wall is firm and unyielding!")
+                print(f"{e_name} bumps against the wall!")
                 continue
-            entname = self.world.component_for_entity(ent, NameComponent).name
+
             target = self._get_entity_at(xn, yn)
-            if target and self.world.has_component(target, ObstructComponent):
-                targetname = self.world.component_for_entity(target, NameComponent).name
-                targethealth = self.world.component_for_entity(target, HealthComponent)
-                targethealth.hp -= 5
-                print(f"{entname} attacks the {targetname}! It has {targethealth.hp} health left.")
+            if target and self.world.has_component(target, HealthComponent):
+                t_name   = self.world.component_for_entity(target, NameComponent).name
+                t_health = self.world.component_for_entity(target, HealthComponent)
+                e_attack = self.world.component_for_entity(ent,    DamageComponent)
+                print(f"{e_name} attacks {t_name} for {e_attack.atk} damage!")
+                t_health.hp -= e_attack.atk
+                if t_health.hp <= 0:
+                    self.world.add_component(target, DieComponent())
+
             else:
                 pc.x = xn
                 pc.y = yn
+
+
+class DeathProcessor(esper.Processor):
+    def process(self) -> None:
+        for ent, (dc,) in self.world.get_components(DieComponent):
+            self.world.remove_component(ent, DieComponent)
+            self.world.remove_component(ent, HealthComponent)
+            if self.world.has_component(ent, PerceptiveComponent):
+                self.world.remove_component(ent, PerceptiveComponent)
+            if self.world.has_component(ent, InputComponent):
+                self.world.remove_component(ent, InputComponent)
+            name = self.world.component_for_entity(ent, NameComponent).name
+            self.world.add_component(ent, NameComponent(f"Remains of {name}"))
+            self.world.add_component(ent, RenderComponent(glyph="%", fg_color=(191,0,0)))
+            print(f"{name} has died.")
 
 
 # TODO Issue with having multiple entities w/ FOV. Fine if just one.

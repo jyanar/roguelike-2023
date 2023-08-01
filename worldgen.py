@@ -70,8 +70,8 @@ def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int)
                     PositionComponent(x, y),
                     HealthComponent(max_hp=10, hp=10),
                     PerceptiveComponent(),
+                    DamageComponent(atk=2),
                     HostileComponent(),
-                    ObstructComponent(),
                     CreatureStateComponent(state=CreatureState.SLEEPING)
                 )
             else:
@@ -81,7 +81,7 @@ def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int)
                     PositionComponent(x, y),
                     HealthComponent(max_hp=15, hp=15),
                     PerceptiveComponent(),
-                    ObstructComponent(),
+                    DamageComponent(atk=3),
                     HostileComponent(),
                     CreatureStateComponent(state=CreatureState.SLEEPING)
                 )
@@ -125,7 +125,7 @@ def generate_dungeon(
                 RenderComponent(glyph="@"),
                 PositionComponent(*rooms[iroom].center),
                 HealthComponent(max_hp=10, hp=10),
-                ObstructComponent(),
+                DamageComponent(atk=5),
             )
         else:
             # Carve tunnels between rooms.

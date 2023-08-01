@@ -36,6 +36,7 @@ class Engine:
         )
         self.world.add_processor(InputProcessor())
         self.world.add_processor(DirectionalActionProcessor(gamemap=self.gamemap))
+        self.world.add_processor(DeathProcessor())
         # world.add_processor(StateProcessor())
         self.world.add_processor(FOVProcessor(gamemap=self.gamemap))
         self.world.add_processor(HostileProcessor(gamemap=self.gamemap))
