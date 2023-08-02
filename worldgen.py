@@ -66,7 +66,7 @@ def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int)
             if random.random() < 0.8:
                 world.create_entity(
                     NameComponent("goblin"),
-                    RenderComponent(glyph="g", fg_color=(139,69,19)),
+                    RenderComponent(glyph="g", fg_color=(139,69,19), order=RenderOrder.ACTOR),
                     PositionComponent(x, y),
                     HealthComponent(max_hp=10, hp=10),
                     PerceptiveComponent(),
@@ -77,7 +77,7 @@ def place_entities(room: RectangularRoom, world: esper.World, max_monsters: int)
             else:
                 world.create_entity(
                     NameComponent("orc"),
-                    RenderComponent(glyph="o", fg_color=(139,69,19)),
+                    RenderComponent(glyph="o", fg_color=(139,69,19), order=RenderOrder.ACTOR),
                     PositionComponent(x, y),
                     HealthComponent(max_hp=15, hp=15),
                     PerceptiveComponent(),
@@ -122,9 +122,9 @@ def generate_dungeon(
                 NameComponent("player"),
                 InputComponent(),
                 FOVComponent(),
-                RenderComponent(glyph="@"),
+                RenderComponent(glyph="@", order=RenderOrder.ACTOR),
                 PositionComponent(*rooms[iroom].center),
-                HealthComponent(max_hp=10, hp=10),
+                HealthComponent(max_hp=20, hp=20),
                 DamageComponent(atk=5),
             )
         else:

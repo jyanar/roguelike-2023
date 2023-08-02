@@ -32,12 +32,18 @@ class PerceptiveComponent:
     radius: int = 4
     perceived_entities: list[int] = field(default_factory=list)
 
+class RenderOrder(Enum):
+    CORPSE = 1
+    ITEM   = 2
+    ACTOR  = 3
+
 # Is renderable. Most entities do not have a bg_color.
 @dataclass
 class RenderComponent:
     glyph: str = "?"
     fg_color: tuple[int,int,int] = (255,255,255)
     bg_color: tuple[int,int,int] | None = None
+    order: RenderOrder = RenderOrder.ACTOR
 
 @dataclass
 class PositionComponent:

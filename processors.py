@@ -73,7 +73,7 @@ class DeathProcessor(esper.Processor):
                 self.world.remove_component(ent, InputComponent)
             name = self.world.component_for_entity(ent, NameComponent).name
             self.world.add_component(ent, NameComponent(f"Remains of {name}"))
-            self.world.add_component(ent, RenderComponent(glyph="%", fg_color=(191,0,0)))
+            self.world.add_component(ent, RenderComponent(glyph="%", fg_color=(191,0,0), order=RenderOrder.CORPSE))
             print(f"{name} has died.")
 
 
@@ -155,12 +155,13 @@ class RenderProcessor(esper.Processor):
     def process(self) -> None:
         self.console.clear()
         self.gamemap.render(self.console)
+        entities_to_draw = []
         for ent, (rc,pc) in self.world.get_components(RenderComponent, PositionComponent):
             if self.gamemap.visible[pc.x, pc.y]:
-                if rc.bg_color:
-                    self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color, bg=rc.bg_color)
-                else:
-                    self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color)
+                entities_to_draw.append((ent, rc, pc))
+        entities_to_draw.sort(key=lambda x: x[1].order.value)
+        for ent, rc, pc in entities_to_draw:
+            self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color)
         self.context.present(self.console, keep_aspect=True, integer_scaling=True)
 
 
