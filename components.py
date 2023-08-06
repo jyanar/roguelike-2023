@@ -56,6 +56,11 @@ class DirectionalActionComponent:
     dx: int = 0
     dy: int = 0
 
+# Obstructs movement. For creatures, removed once they die.
+@dataclass
+class ObstructComponent:
+    pass
+
 # Is steered by AI. Could have paths here, or type of pathing, etc.
 @dataclass
 class AIComponent:

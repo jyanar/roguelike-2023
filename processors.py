@@ -48,13 +48,14 @@ class DirectionalActionProcessor(esper.Processor):
                 continue
 
             target = self._get_entity_at(xn, yn)
-            if target and self.world.has_component(target, HealthComponent):
+            if target and self.world.has_component(target, ObstructComponent):
                 t_name   = self.world.component_for_entity(target, NameComponent).name
                 t_health = self.world.component_for_entity(target, HealthComponent)
                 e_attack = self.world.component_for_entity(ent,    DamageComponent)
                 print(f"{e_name} attacks {t_name} for {e_attack.atk} damage!")
                 t_health.hp -= e_attack.atk
                 if t_health.hp <= 0:
+                    t_health.hp = 0
                     self.world.add_component(target, DieComponent())
 
             else:
@@ -66,7 +67,7 @@ class DeathProcessor(esper.Processor):
     def process(self) -> None:
         for ent, (dc,) in self.world.get_components(DieComponent):
             self.world.remove_component(ent, DieComponent)
-            self.world.remove_component(ent, HealthComponent)
+            self.world.remove_component(ent, ObstructComponent)
             if self.world.has_component(ent, PerceptiveComponent):
                 self.world.remove_component(ent, PerceptiveComponent)
             if self.world.has_component(ent, InputComponent):
@@ -154,7 +155,9 @@ class RenderProcessor(esper.Processor):
 
     def process(self) -> None:
         self.console.clear()
+        # Render the game map
         self.gamemap.render(self.console)
+        # Render entities
         entities_to_draw = []
         for ent, (rc,pc) in self.world.get_components(RenderComponent, PositionComponent):
             if self.gamemap.visible[pc.x, pc.y]:
@@ -162,6 +165,10 @@ class RenderProcessor(esper.Processor):
         entities_to_draw.sort(key=lambda x: x[1].order.value)
         for ent, rc, pc in entities_to_draw:
             self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color)
+        # Render HP bars, menus, etc
+        # We know that the player is the first entity, by convention.
+        hpc = self.world.component_for_entity(1, HealthComponent)
+        self.console.print(x=10, y=10, string=f"HP: {hpc.hp}/{hpc.max_hp}")
         self.context.present(self.console, keep_aspect=True, integer_scaling=True)
 
 
