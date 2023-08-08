@@ -9,6 +9,7 @@ from constants import *
 from gamemap import GameMap
 from keymap import WAIT_KEYS, MOVE_KEYS
 from render_functions import render_bar
+from message_log import MessageLog
 
 
 class InputProcessor(esper.Processor):
@@ -26,8 +27,9 @@ class InputProcessor(esper.Processor):
 
 
 class DirectionalActionProcessor(esper.Processor):
-    def __init__(self, gamemap: GameMap):
+    def __init__(self, gamemap: GameMap, msglog: MessageLog):
         self.gamemap = gamemap
+        self.msglog = msglog
 
     def _get_entity_at(self, x: int, y: int) -> int | None:
         for (ent, pc) in self.world.get_component(PositionComponent):
@@ -45,7 +47,7 @@ class DirectionalActionProcessor(esper.Processor):
 
             e_name = self.world.component_for_entity(ent, NameComponent).name
             if not self.gamemap.is_walkable(xn, yn):
-                print(f"{e_name} bumps against the wall!")
+                self.msglog.add_message(f"{e_name} bumps against the wall!")
                 continue
 
             target = self._get_entity_at(xn, yn)
@@ -53,7 +55,7 @@ class DirectionalActionProcessor(esper.Processor):
                 t_name   = self.world.component_for_entity(target, NameComponent).name
                 t_health = self.world.component_for_entity(target, HealthComponent)
                 e_attack = self.world.component_for_entity(ent,    DamageComponent)
-                print(f"{e_name} attacks {t_name} for {e_attack.atk} damage!")
+                self.msglog.add_message(f"{e_name} attacks {t_name} for {e_attack.atk} damage!")
                 t_health.hp -= e_attack.atk
                 if t_health.hp <= 0:
                     t_health.hp = 0
@@ -65,6 +67,9 @@ class DirectionalActionProcessor(esper.Processor):
 
 
 class DeathProcessor(esper.Processor):
+    def __init__(self, msglog: MessageLog):
+        self.msglog = msglog
+
     def process(self) -> None:
         for ent, (dc,) in self.world.get_components(DieComponent):
             self.world.remove_component(ent, DieComponent)
@@ -76,7 +81,7 @@ class DeathProcessor(esper.Processor):
             name = self.world.component_for_entity(ent, NameComponent).name
             self.world.add_component(ent, NameComponent(f"Remains of {name}"))
             self.world.add_component(ent, RenderComponent(glyph="%", fg_color=(191,0,0), order=RenderOrder.CORPSE))
-            print(f"{name} has died.")
+            self.msglog.add_message(f"{name} has died.")
 
 
 # TODO Issue with having multiple entities w/ FOV. Fine if just one.
@@ -149,10 +154,11 @@ class StateProcessor(esper.Processor):
 
 
 class RenderProcessor(esper.Processor):
-    def __init__(self, context: tcod.context.Context, console: tcod.console.Console, gamemap: GameMap):
+    def __init__(self, context: tcod.context.Context, console: tcod.console.Console, gamemap: GameMap, msglog: MessageLog):
         self.context = context
         self.console = console
         self.gamemap = gamemap
+        self.msglog  = msglog
 
     def process(self) -> None:
         self.console.clear()
@@ -166,11 +172,11 @@ class RenderProcessor(esper.Processor):
         entities_to_draw.sort(key=lambda x: x[1].order.value)
         for ent, rc, pc in entities_to_draw:
             self.console.print(x=pc.x, y=pc.y, string=rc.glyph, fg=rc.fg_color)
-        # Render HP bars, menus, etc
-        # We know that the player is the first entity, by convention.
-        hpc = self.world.component_for_entity(1, HealthComponent)
-        # self.console.print(x=10, y=10, string=f"HP: {hpc.hp}/{hpc.max_hp}")
+        # Render HP bar, and message logs.
+        hpc = self.world.component_for_entity(1, HealthComponent) # Player entity is 1, by convention.
         render_bar(self.console, hpc.hp, hpc.max_hp, 20)
+        self.msglog.render(self.console, x=21, y=MAP_HEIGHT+1, width=MAP_WIDTH-20, height=4)
+        # f i n i s h
         self.context.present(self.console, keep_aspect=True, integer_scaling=True)
 
 

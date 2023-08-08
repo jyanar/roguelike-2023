@@ -116,7 +116,6 @@ def generate_dungeon(
         ## Dig out this room, add enemies, and add to list of rooms
         dungeon.tiles[new_room.inner] = tile_types.floor
         rooms.append(new_room)
-        place_entities(new_room, world, max_monsters_per_room)
 
         if iroom == 0:
             # Place player!
@@ -131,6 +130,8 @@ def generate_dungeon(
                 DamageComponent(atk=5),
             )
         else:
+            # Place mobs in the other rooms.
+            place_entities(new_room, world, max_monsters_per_room)
             # Carve tunnels between rooms.
             for x, y in tunnel_between(rooms[-2].center, rooms[-1].center):
                 dungeon.tiles[x, y] = tile_types.floor
