@@ -4,6 +4,7 @@
 import tcod
 import esper
 
+import color
 from components import *
 from constants import *
 from gamemap import GameMap
@@ -55,7 +56,7 @@ class DirectionalActionProcessor(esper.Processor):
                 t_name   = self.world.component_for_entity(target, NameComponent).name
                 t_health = self.world.component_for_entity(target, HealthComponent)
                 e_attack = self.world.component_for_entity(ent,    DamageComponent)
-                self.msglog.add_message(f"{e_name} attacks {t_name} for {e_attack.atk} damage!")
+                self.msglog.add_message(f"{e_name} attacks {t_name} for {e_attack.atk} damage!", fg=color.red)
                 t_health.hp -= e_attack.atk
                 if t_health.hp <= 0:
                     t_health.hp = 0
