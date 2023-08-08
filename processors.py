@@ -8,6 +8,7 @@ from components import *
 from constants import *
 from gamemap import GameMap
 from keymap import WAIT_KEYS, MOVE_KEYS
+from render_functions import render_bar
 
 
 class InputProcessor(esper.Processor):
@@ -168,7 +169,8 @@ class RenderProcessor(esper.Processor):
         # Render HP bars, menus, etc
         # We know that the player is the first entity, by convention.
         hpc = self.world.component_for_entity(1, HealthComponent)
-        self.console.print(x=10, y=10, string=f"HP: {hpc.hp}/{hpc.max_hp}")
+        # self.console.print(x=10, y=10, string=f"HP: {hpc.hp}/{hpc.max_hp}")
+        render_bar(self.console, hpc.hp, hpc.max_hp, 20)
         self.context.present(self.console, keep_aspect=True, integer_scaling=True)
 
 
