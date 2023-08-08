@@ -33,3 +33,7 @@ WAIT_KEYS = {
     tcod.event.KeySym.KP_5 ,
     tcod.event.KeySym.CLEAR,
 }
+
+QUIT_KEYS = {
+    tcod.event.KeySym.ESCAPE
+}

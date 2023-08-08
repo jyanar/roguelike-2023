@@ -13,6 +13,7 @@ from gamemap import GameMap
 from worldgen import generate_dungeon
 from components import KeyPressComponent
 from message_log import MessageLog
+from keymap import *
 
 
 class Engine:
@@ -51,7 +52,9 @@ class Engine:
     def update(self) -> None:
         for event in tcod.event.wait():
             if isinstance(event, tcod.event.KeyDown):
-                kp = self.world.create_entity(KeyPressComponent(key=event.sym))
-                self.world.process()
-                self.world.delete_entity(kp)
+                key = event.sym
+                if key in MOVE_KEYS.keys() or key in WAIT_KEYS or key in QUIT_KEYS:
+                    kp = self.world.create_entity(KeyPressComponent(key=key))
+                    self.world.process()
+                    self.world.delete_entity(kp)
 
